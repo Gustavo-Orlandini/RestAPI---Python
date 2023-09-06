@@ -39,3 +39,7 @@ def editar_venda(id_venda: int, venda: Venda):
         return {"message": f"Venda ID {id_venda} editada com sucesso"}
     else:
         raise HTTPException(status_code=404, detail="ID da venda inexistente")
+    
+@app.get("/vendas/")
+def listar_vendas():
+    return {"Vendas": vendas}    
