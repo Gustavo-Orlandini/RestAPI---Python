@@ -3,57 +3,57 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-class Venda(BaseModel):
-    item: str
-    preco_unitario: float
-    quantidade: int
+class Member(BaseModel):
+    nome: str
+    cpf: int
+    idade: int
     disponivel: bool = True
 
-vendas = {
-    1: {"item": "garrafa 2l", "preco_unitario": 9, "quantidade": 3, "disponivel": True},
-    2: {"item": "garrafa 1.5l", "preco_unitario": 8, "quantidade": 6, "disponivel": True},
-    3: {"item": "lata 350ml", "preco_unitario": 3.9, "quantidade": 4, "disponivel": True},
-    4: {"item": "garrafa 600ml", "preco_unitario": 5, "quantidade": 11, "disponivel": True},
+members = {
+    1: {"nome": "Gustavo Suguyama Orlandini", "cpf": 38488266820, "idade": 32, "disponivel": True},
+    2: {"nome": "Victor Belarlindo Gomes", "cpf": 33899844890, "idade": 61, "disponivel": True},
+    3: {"nome": "Vitin Silva Sauro", "cpf": 32933444323, "idade": 43, "disponivel": True},
+    4: {"nome": "João Pedro Cardoso", "cpf": 52299733830, "idade": 19, "disponivel": True},
 }
 
 @app.get("/")
 def home():
-    return {"Vendas": len(vendas)}
+    return {"Membros": len(members)}
 
-@app.get("/vendas/{id_venda}")
-def pegar_venda(id_venda: int):
-    if id_venda in vendas and vendas[id_venda]["disponivel"]:
-        return vendas[id_venda]
+@app.get("/members/{id_member}")
+def pegar_membro(id_member: int):
+    if id_member in members and members[id_member]["disponivel"]:
+        return members[id_member]
     else:
-        raise HTTPException(status_code=404, detail="Venda disponível com o ID especificado não encontrada")
+        raise HTTPException(status_code=404, detail="Membro Indisponível ou não encontrado")
     
 
-@app.post("/vendas/")
-def criar_venda(venda: Venda):
-    nova_id = max(vendas.keys()) + 1
-    vendas[nova_id] = venda.model_dump()
-    return {"message": "Venda adicionada com sucesso", "nova_id": nova_id}
+@app.post("/members/")
+def criar_membro(membro: Member):
+    novo_id = max(members.keys()) + 1
+    members[novo_id] = membro.model_dump()
+    return {"message": "Membro adicionada com sucesso", "novo_id": novo_id}
 
 
-@app.put("/vendas/{id_venda}")
-def editar_venda(id_venda: int, venda: Venda):
-    if id_venda in vendas:
-        vendas[id_venda] = venda.model_dump()
-        return {"message": f"Venda ID {id_venda} editada com sucesso"}
+@app.put("/members/{id_member}")
+def editar_membro(id_member: int, membro: Member):
+    if id_member in members:
+        members[id_member] = membro.model_dump()
+        return {"message": f"Membro de ID {id_member} editado com sucesso"}
     else:
-        raise HTTPException(status_code=404, detail="ID da venda inexistente")
+        raise HTTPException(status_code=404, detail="ID do membro inexistente")
     
     
-@app.get("/vendas/")
-def listar_vendas():
-    vendas_disponiveis = {k: v for k, v in vendas.items() if v["disponivel"]}
-    return {"Vendas disponíveis": vendas_disponiveis}    
+@app.get("/members/")
+def listar_membros():
+    membros_disponiveis = {k: v for k, v in members.items() if v["disponivel"]}
+    return {"Vendas disponíveis": membros_disponiveis}    
 
 
-@app.put("/vendas/{id_venda}/delete")
-def delete_venda(id_venda: int):
-    if id_venda in vendas:
-        vendas[id_venda]["disponivel"] = False
-        return {"message": f"Venda ID {id_venda} marcada como não disponível"}
+@app.put("/members/{id_member}/delete")
+def delete_venda(id_member: int):
+    if id_member in members:
+        members[id_member]["disponivel"] = False
+        return {"message": f"Membro de ID {id_member} marcada como não disponível"}
     else:
-        raise HTTPException(status_code=404, detail="ID da venda inexistente")
+        raise HTTPException(status_code=404, detail="ID do membro inexistente")
