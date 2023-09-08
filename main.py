@@ -18,21 +18,21 @@ members = {
     4: {"nome": "João Pedro Cardoso", "cpf": 52299733830, "idade": 19, "disponivel": True},
 }
 
+member_manager = MemberManager(members)
+
 @app.get("/")
 def home():
     return {"Membros": len(members)}
 
 @app.get("/members/{id_member}")
 def pegar_membro(id_member: int):
-    member_manager = MemberManager(members)
     specific_member = member_manager.get_member(id = id_member)
     return specific_member   
 
 @app.post("/members/")
 def criar_membro(membro: Member):
-    novo_id = max(members.keys()) + 1
-    members[novo_id] = membro.model_dump()
-    return {"message": "Membro adicionada com sucesso", "novo_id": novo_id}
+    new_member = member_manager.add_member(membro)
+    return new_member
 
 
 @app.put("/members/{id_member}")
