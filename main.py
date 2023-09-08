@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
+from src.pegar_membro import MemberManager
+
 app = FastAPI()
 
 class Member(BaseModel):
@@ -22,11 +24,9 @@ def home():
 
 @app.get("/members/{id_member}")
 def pegar_membro(id_member: int):
-    if id_member in members and members[id_member]["disponivel"]:
-        return members[id_member]
-    else:
-        raise HTTPException(status_code=404, detail="Membro Indisponível ou não encontrado")
-    
+    member_manager = MemberManager(members)
+    specific_member = member_manager.get_member(id = id_member)
+    return specific_member   
 
 @app.post("/members/")
 def criar_membro(membro: Member):
