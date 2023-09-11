@@ -46,8 +46,8 @@ def edit_specific_member(id_member: int, new_datas_member: dict):
     
 @app.get("/members/")
 def list_all_members():
-    membros_disponiveis = {k: v for k, v in members.items() if v["disponivel"]}
-    return {"Vendas disponíveis": membros_disponiveis}    
+    members = member_manager.get_all_members()
+    return members  
 
 
 @app.put("/members/{id_member}/delete")

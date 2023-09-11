@@ -17,11 +17,19 @@ class MemberManager:
         return {"message": "Membro adicionado com sucesso", "novo_id": novo_id}
     
     
-    def edit_member(self, id_member, new_datas_member):
+    def edit_member(self, id_member, novos_dados):
         if id_member in self.members:
             membro = self.members[id_member]
-            for campo, valor in new_datas_member.items():
-                membro[campo] = valor
+            for campo, valor in novos_dados.items():
+                if campo in membro:
+                    membro[campo] = valor
+                else:
+                    raise HTTPException(status_code=400, detail="Campo incorreto ou inexistente")
             return {"message": f"Membro de ID {id_member} editado com sucesso"}
         else:
             raise HTTPException(status_code=404, detail="ID do membro inexistente")
+        
+
+    def get_all_members(self):
+        active_members = {k: v for k, v in self.members.items() if v["disponivel"]}
+        return {"Membros disponíveis": active_members}
