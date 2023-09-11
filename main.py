@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from src.pegar_membro import MemberManager
+from src.member_meneger import MemberManager
 
 app = FastAPI()
 
