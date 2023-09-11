@@ -31,5 +31,5 @@ class MemberManager:
         
 
     def get_all_members(self):
-        active_members = {k: v for k, v in self.members.items() if v["disponivel"]}
+        active_members = {k: v for k, v in self.members.items() if v["disponivel"] == True}
         return {"Membros disponíveis": active_members}

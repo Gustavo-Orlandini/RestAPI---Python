@@ -6,17 +6,18 @@ from src.member_meneger import MemberManager
 app = FastAPI()
 
 class Member(BaseModel):
+    id: int
     nome: str
     cpf: int
     idade: int
     disponivel: bool = True
 
-members = {
-    1: {"nome": "Gustavo Suguyama Orlandini", "cpf": 38488266820, "idade": 32, "disponivel": True},
-    2: {"nome": "Victor Belarlindo Gomes", "cpf": 33899844890, "idade": 61, "disponivel": True},
-    3: {"nome": "Vitin Silva Sauro", "cpf": 32933444323, "idade": 43, "disponivel": True},
-    4: {"nome": "João Pedro Cardoso", "cpf": 52299733830, "idade": 19, "disponivel": True},
-}
+members = [
+{"id": 1, "nome": "Gustavo Suguyama Orlandini", "cpf": 38488266820, "idade": 32, "disponivel": True},
+{"id": 2, "nome": "Victor Belarlindo Gomes", "cpf": 33899844890, "idade": 23, "disponivel": True},
+{"id": 3, "nome": "Vitin Silva Sauro", "cpf": 32933444323, "idade": 34, "disponivel": True},
+{"id": 4, "nome": "João Pedro Cardoso", "cpf": 52299733830, "idade": 31, "disponivel": True}
+]
 
 member_manager = MemberManager(members)
 
