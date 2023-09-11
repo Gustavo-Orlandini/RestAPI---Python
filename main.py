@@ -36,12 +36,12 @@ def create_member(membro: Member):
 
 
 @app.put("/members/{id_member}")
-def edit_member(id_member: int, membro: Member):
-    if id_member in members:
-        members[id_member] = membro.model_dump()
-        return {"message": f"Membro de ID {id_member} editado com sucesso"}
-    else:
-        raise HTTPException(status_code=404, detail="ID do membro inexistente")
+def edit_specific_member(id_member: int, new_datas_member: dict):
+    try:
+        edited_member = member_manager.edit_member(id_member, new_datas_member)
+        return edited_member
+    except HTTPException as error:
+        raise error
     
     
 @app.get("/members/")
