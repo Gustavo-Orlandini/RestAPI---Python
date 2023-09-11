@@ -25,18 +25,18 @@ def home():
     return {"Membros": len(members)}
 
 @app.get("/members/{id_member}")
-def pegar_membro(id_member: int):
+def get_specific_member(id_member: int):
     specific_member = member_manager.get_member(id = id_member)
     return specific_member   
 
 @app.post("/members/")
-def criar_membro(membro: Member):
+def create_member(membro: Member):
     new_member = member_manager.add_member(membro)
     return new_member
 
 
 @app.put("/members/{id_member}")
-def editar_membro(id_member: int, membro: Member):
+def edit_member(id_member: int, membro: Member):
     if id_member in members:
         members[id_member] = membro.model_dump()
         return {"message": f"Membro de ID {id_member} editado com sucesso"}
@@ -45,13 +45,13 @@ def editar_membro(id_member: int, membro: Member):
     
     
 @app.get("/members/")
-def listar_membros():
+def list_all_members():
     membros_disponiveis = {k: v for k, v in members.items() if v["disponivel"]}
     return {"Vendas disponíveis": membros_disponiveis}    
 
 
 @app.put("/members/{id_member}/delete")
-def delete_venda(id_member: int):
+def delete_member(id_member: int):
     if id_member in members:
         members[id_member]["disponivel"] = False
         return {"message": f"Membro de ID {id_member} marcada como não disponível"}
