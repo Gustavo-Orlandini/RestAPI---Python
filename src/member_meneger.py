@@ -12,24 +12,38 @@ class MemberManager:
 
 
     def add_member(self, membro):
-        novo_id = max(self.members.keys()) + 1
-        self.members[novo_id] = membro
+        if not self.members:
+            novo_id = 1
+        else:
+            novo_id = max([x[“id”] for x in self.members]) + 1
+        membro["id"] = novo_id
+        self.members.append(membro)
         return {"message": "Membro adicionado com sucesso", "novo_id": novo_id}
     
     
-    def edit_member(self, id_member, novos_dados):
-        if id_member in self.members:
-            membro = self.members[id_member]
-            for campo, valor in novos_dados.items():
-                if campo in membro:
-                    membro[campo] = valor
-                else:
-                    raise HTTPException(status_code=400, detail="Campo incorreto ou inexistente")
-            return {"message": f"Membro de ID {id_member} editado com sucesso"}
-        else:
-            raise HTTPException(status_code=404, detail="ID do membro inexistente")
+    def edit_member(self, id_member, new_datas_member):
+        for member in self.members:
+            if member["id"] == id_member:
+                for campo, valor in new_datas_member.items():
+                    if campo in member:
+                        member[campo] = valor
+                    else:
+                        raise HTTPException(status_code=400, detail="Campo incorreto ou inexistente")
+                return {"message": f"Membro de ID {id_member} editado com sucesso"}
+        raise HTTPException(status_code=404, detail="ID do membro inexistente")
         
 
     def get_all_members(self):
-        active_members = {k: v for k, v in self.members.items() if v["disponivel"] == True}
+        active_members = [member for member in self.members if member["disponivel"] == True]
         return {"Membros disponíveis": active_members}
+    
+    
+    def excluir_membro(self, id_member):
+        for member in self.members:
+            if member["id"] == id_member:
+                if member["disponivel"] == True:
+                    member["disponivel"] = False
+                    return {"message": f"Membro de ID {id_member} marcado como não disponível"}
+                else:
+                    raise HTTPException(status_code=400, detail=f"Membro de ID {id_member} já está marcado como não disponível")
+        raise HTTPException(status_code=404, detail="ID do membro inexistente")
