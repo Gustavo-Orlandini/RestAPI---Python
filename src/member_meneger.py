@@ -49,12 +49,12 @@ class MemberManager:
         active_members = list(map(lambda member: {
             **member,
             "_id": str(member["_id"]),
-        }, mongo.find({"disponivel": True})))
+        }, mongo.find({"active": True})))
         return {"Membros disponíveis": active_members}
     
     
     def exclude_member(self, id_member):
-        result = mongo.update_one({"_id": ObjectId(id_member)}, {"$set": {"disponivel": False}})
+        result = mongo.update_one({"_id": ObjectId(id_member)}, {"$set": {"active": False}})
         if result.matched_count == 0:
             raise HTTPException(status_code=404, detail="ID do membro inexistente")
         if result.modified_count == 0:

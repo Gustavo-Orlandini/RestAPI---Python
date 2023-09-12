@@ -14,7 +14,7 @@ class Member(BaseModel):
     role: str
     permission: str
     avatar: str
-    disponivel: bool = True
+    active: bool = True
 
 member_manager = MemberManager()
 
