@@ -46,9 +46,9 @@ def list_all_members():
 
 
 @app.put("/members/{id_member}/delete")
-def delete_member(id_member: int):
+def delete_member(id_member: str):
     try:
-        deleted_member = member_manager.excluir_membro(id_member)
+        deleted_member = member_manager.exclude_member(id_member)
         return deleted_member
     except HTTPException as error:
         raise error

@@ -53,12 +53,10 @@ class MemberManager:
         return {"Membros disponíveis": active_members}
     
     
-    def excluir_membro(self, id_member):
-        for member in self.members:
-            if member["id"] == id_member:
-                if member["disponivel"] == True:
-                    member["disponivel"] = False
-                    return {"message": f"Membro de ID {id_member} marcado como não disponível"}
-                else:
-                    raise HTTPException(status_code=400, detail=f"Membro de ID {id_member} já está marcado como não disponível")
-        raise HTTPException(status_code=404, detail="ID do membro inexistente")
+    def exclude_member(self, id_member):
+        result = mongo.update_one({"_id": ObjectId(id_member)}, {"$set": {"disponivel": False}})
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="ID do membro inexistente")
+        if result.modified_count == 0:
+            raise HTTPException(status_code=500, detail="Erro ao excluir o membro")
+        return {"message": f"Membro de ID {id_member} excluido com sucesso"}
