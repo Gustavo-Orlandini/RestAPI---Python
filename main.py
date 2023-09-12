@@ -7,8 +7,12 @@ app = FastAPI()
 
 class Member(BaseModel):
     nome: str
+    sobrenome: str
     cpf: str
-    idade: int
+    email: str
+    empresa: str
+    cargo: str
+    permisssao: str
     disponivel: bool = True
 
 member_manager = MemberManager()
