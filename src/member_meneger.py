@@ -37,6 +37,8 @@ class MemberManager:
         if not specific_member:
             raise HTTPException(status_code=404, detail="ID incorreto ou inexistente")
         for campo, valor in new_datas_member.items():
+            if valor == None:
+                continue
             if campo in specific_member:
                 specific_member[campo] = valor
             else:

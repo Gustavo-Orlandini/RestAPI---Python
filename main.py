@@ -16,6 +16,17 @@ class Member(BaseModel):
     avatar: str
     active: bool = True
 
+
+class MemberForEdit(BaseModel):
+    name: str | None = None
+    lastName: str | None = None
+    cpf: str | None = None
+    email: str | None = None
+    company: str | None = None
+    role: str | None = None
+    permission: str | None = None
+    avatar: str | None = None
+
 member_manager = MemberManager()
 
 @app.get("/")
@@ -36,7 +47,7 @@ def create_member(member: Member):
 
 
 @app.put("/members/{id_member}")
-def edit_specific_member(id_member: str, member: Member):
+def edit_specific_member(id_member: str, member: MemberForEdit):
     try:
         edited_member = member_manager.edit_member(id_member, member.model_dump())
         return edited_member
