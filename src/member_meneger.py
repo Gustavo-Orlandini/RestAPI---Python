@@ -15,7 +15,7 @@ class MemberManager:
         if not self.members:
             novo_id = 1
         else:
-            novo_id = max([x[“id”] for x in self.members]) + 1
+            novo_id = int(max([x["id"] for x in self.members])) + 1
         membro["id"] = novo_id
         self.members.append(membro)
         return {"message": "Membro adicionado com sucesso", "novo_id": novo_id}

@@ -8,15 +8,15 @@ app = FastAPI()
 class Member(BaseModel):
     id: int
     nome: str
-    cpf: int
+    cpf: str
     idade: int
     disponivel: bool = True
 
 members = [
-{"id": 1, "nome": "Gustavo Suguyama Orlandini", "cpf": 38488266820, "idade": 32, "disponivel": True},
-{"id": 2, "nome": "Victor Belarlindo Gomes", "cpf": 33899844890, "idade": 23, "disponivel": True},
-{"id": 3, "nome": "Vitin Silva Sauro", "cpf": 32933444323, "idade": 34, "disponivel": True},
-{"id": 4, "nome": "João Pedro Cardoso", "cpf": 52299733830, "idade": 31, "disponivel": True},
+{"id": 1, "nome": "Gustavo Suguyama Orlandini", "cpf": "38488266820", "idade": 32, "disponivel": True},
+{"id": 2, "nome": "Victor Belarlindo Gomes", "cpf": "33899844890", "idade": 23, "disponivel": True},
+{"id": 3, "nome": "Vitin Silva Sauro", "cpf": "32933444323", "idade": 34, "disponivel": True},
+{"id": 4, "nome": "João Pedro Cardoso", "cpf": "52299733830", "idade": 31, "disponivel": True},
 ]
 
 member_manager = MemberManager(members)
@@ -53,8 +53,8 @@ def list_all_members():
 
 @app.put("/members/{id_member}/delete")
 def delete_member(id_member: int):
-    if id_member in members:
-        members[id_member]["disponivel"] = False
-        return {"message": f"Membro de ID {id_member} marcada como não disponível"}
-    else:
-        raise HTTPException(status_code=404, detail="ID do membro inexistente")
+    try:
+        deleted_member = member_manager.excluir_membro(id_member)
+        return deleted_member
+    except HTTPException as error:
+        raise error
