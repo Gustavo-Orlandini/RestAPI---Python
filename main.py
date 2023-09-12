@@ -6,13 +6,14 @@ from src.member_meneger import MemberManager
 app = FastAPI()
 
 class Member(BaseModel):
-    nome: str
-    sobrenome: str
+    name: str
+    lastName: str
     cpf: str
     email: str
-    empresa: str
-    cargo: str
-    permisssao: str
+    company: str
+    role: str
+    permission: str
+    avatar: str
     disponivel: bool = True
 
 member_manager = MemberManager()
