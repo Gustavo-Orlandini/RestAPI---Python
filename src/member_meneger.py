@@ -1,4 +1,7 @@
 from fastapi import HTTPException
+from pymongo import MongoClient
+
+
 
 class MemberManager:
     def __init__(self, members):
