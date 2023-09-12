@@ -46,7 +46,10 @@ class MemberManager:
         
 
     def get_all_members(self):
-        active_members = [member for member in self.members if member["disponivel"] == True]
+        active_members = list(map(lambda member: {
+            **member,
+            "_id": str(member["_id"]),
+        }, mongo.find({"disponivel": True})))
         return {"Membros disponíveis": active_members}
     
     
