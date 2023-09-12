@@ -1,27 +1,29 @@
 from fastapi import HTTPException
 from pymongo import MongoClient
+from dotenv import load_dotenv
+load_dotenv()
+import os
+from bson import ObjectId 
 
 
+MONGO_CONNECTION_STRING=os.getenv("MONGO_CONNECTION_STRING")
+mongo = MongoClient(MONGO_CONNECTION_STRING)["dev"]["members"]
 
 class MemberManager:
-    def __init__(self, members):
-        self.members = members
+    def __init__(self):
+        pass
 
     def get_member(self, id):
-        if id in self.members and self.members[id]["disponivel"]:
-            return self.members[id]
+        specific_member = mongo.find_one({"_id": ObjectId(id)})
+        if not specific_member:
+            raise HTTPException(status_code=404, detail="ID incorreto ou inexistente")
         else:
-            raise HTTPException(status_code=404, detail="Membro Indisponível ou não encontrado")
+            return {**specific_member, "_id": str(specific_member["_id"])}
 
 
-    def add_member(self, membro):
-        if not self.members:
-            novo_id = 1
-        else:
-            novo_id = int(max([x["id"] for x in self.members])) + 1
-        membro["id"] = novo_id
-        self.members.append(membro)
-        return {"message": "Membro adicionado com sucesso", "novo_id": novo_id}
+    def add_member(self, member):
+        mongo.insert_one(member)
+        return {"message": "Membro adicionado com sucesso"}
     
     
     def edit_member(self, id_member, new_datas_member):
