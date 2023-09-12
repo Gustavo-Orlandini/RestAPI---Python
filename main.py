@@ -31,7 +31,7 @@ def create_member(member: Member):
 
 
 @app.put("/members/{id_member}")
-def edit_specific_member(id_member: int, member: Member):
+def edit_specific_member(id_member: str, member: Member):
     try:
         edited_member = member_manager.edit_member(id_member, member.model_dump())
         return edited_member
