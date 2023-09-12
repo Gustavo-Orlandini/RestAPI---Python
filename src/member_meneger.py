@@ -13,6 +13,11 @@ class MemberManager:
     def __init__(self):
         pass
 
+
+    def member_count(self):
+        return mongo.count_documents({})
+        
+
     def get_member(self, id):
         specific_member = mongo.find_one({"_id": ObjectId(id)})
         if not specific_member:

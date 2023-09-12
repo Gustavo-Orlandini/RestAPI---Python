@@ -15,12 +15,14 @@ member_manager = MemberManager()
 
 @app.get("/")
 def home():
-    return {"Membros": len(members)}
+    return member_manager.member_count()
+
 
 @app.get("/members/{id_member}")
 def get_specific_member(id_member: str):
     specific_member = member_manager.get_member(id_member)
     return specific_member  
+
 
 @app.post("/members/")
 def create_member(member: Member):
