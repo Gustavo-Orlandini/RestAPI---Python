@@ -77,7 +77,7 @@ def delete_member(id_member: str):
         raise error
     
 
-@app.get("/companys/")
+@app.get("/company/")
 def list_all_companys():
     companys = {
         "company": [
@@ -89,7 +89,7 @@ def list_all_companys():
     return companys
 
 
-@app.get("/roles/")
+@app.get("/role/")
 def list_all_roles():
     roles = {
         "role": [
@@ -102,7 +102,7 @@ def list_all_roles():
     return roles
 
 
-@app.get("/permissions/")
+@app.get("/permission/")
 def list_all_permissions():
     permissions = {
         "permission": [
