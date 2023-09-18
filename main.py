@@ -1,9 +1,16 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+
 
 from src.member_meneger import MemberManager
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*']
+)
 
 class Member(BaseModel):
     name: str
@@ -68,3 +75,41 @@ def delete_member(id_member: str):
         return deleted_member
     except HTTPException as error:
         raise error
+    
+
+@app.get("/companys/")
+def list_all_companys():
+    companys = {
+        "company": [
+            "Ibitu",
+            "Eletronorte",
+            "Furnas"
+        ]
+    }
+    return companys
+
+
+@app.get("/roles/")
+def list_all_roles():
+    roles = {
+        "role": [
+            "Desenvolvedor",
+            "Analista",
+            "Coordenador",
+            "Gerente"
+        ]
+    }
+    return roles
+
+
+@app.get("/permissions/")
+def list_all_permissions():
+    permissions = {
+        "permission": [
+            "Cliente",
+            "Administrador",
+            "Master",
+            "Gerente"
+        ]
+    }
+    return permissions
