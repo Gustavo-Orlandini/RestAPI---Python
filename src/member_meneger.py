@@ -25,6 +25,14 @@ class MemberManager:
             raise HTTPException(status_code=404, detail="ID incorreto ou inexistente")
         else:
             return {**specific_member, "_id": str(specific_member["_id"])}
+        
+
+    def get_member_by_firebase_id(self, id):
+        specific_firebase_member = mongo.find_one({"_id_firebase": id})
+        if not specific_firebase_member:
+            raise HTTPException(status_code=404, detail="ID incorreto ou inexistente")
+        else:
+            return {**specific_firebase_member, "_id": str(specific_firebase_member["_id"])}    
 
 
     def add_member(self, member):
@@ -52,7 +60,7 @@ class MemberManager:
             **member,
             "_id": str(member["_id"]),
         }, mongo.find({"active": True})))
-        return {"Membros disponíveis": active_members}
+        return active_members
     
     
     def exclude_member(self, id_member):

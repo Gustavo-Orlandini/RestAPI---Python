@@ -9,7 +9,10 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['*']
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 class Member(BaseModel):
@@ -21,6 +24,16 @@ class Member(BaseModel):
     role: str
     permission: str
     avatar: str
+    active: bool = True
+
+class Teste(BaseModel):
+    name: str
+    lastName: str
+    cpf: str
+    email: str
+    company: str
+    role: str
+    permission: str
     active: bool = True
 
 
@@ -47,8 +60,15 @@ def get_specific_member(id_member: str):
     return specific_member  
 
 
+@app.get("/members/firebase/{id_firebase}")
+def get_specific_member_by_firebase_id(id_firebase: str):
+    specific_member = member_manager.get_member_by_firebase_id(id_firebase)
+    return specific_member  
+
+
 @app.post("/members/")
-def create_member(member: Member):
+def create_member(member: Teste):
+    print(member)
     new_member = member_manager.add_member(member.model_dump())
     return new_member
 
