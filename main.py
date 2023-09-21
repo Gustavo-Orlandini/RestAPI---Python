@@ -83,9 +83,19 @@ def edit_specific_member(id_member: str, member: MemberForEdit):
     
     
 @app.get("/members/")
-def list_all_members():
-    members = member_manager.get_all_members()
-    return members  
+def list_all_members(
+    name: str | None = None, 
+    role: str | None = None, 
+    permission: str | None = None,
+    company: str | None = None
+    ):
+    members = member_manager.get_all_members(
+        name=name,
+        role=role,
+        permission=permission,
+        company=company
+    )
+    return members
 
 
 @app.put("/members/{id_member}/delete")
@@ -133,3 +143,4 @@ def list_all_permissions():
         ]
     }
     return permissions
+

@@ -55,11 +55,37 @@ class MemberManager:
         return {"message": f"Membro de ID {id_member} editado com sucesso"}
         
 
-    def get_all_members(self):
-        active_members = list(map(lambda member: {
-            **member,
-            "_id": str(member["_id"]),
-        }, mongo.find({"active": True})))
+    def get_all_members(self, **kwargs):
+        filters = {key: value for key, value in kwargs.items() if value is not None}
+        role = kwargs['role']
+        permission = kwargs['permission']
+        company = kwargs['company']
+        search_term = kwargs['name']
+        query = {
+            "$and": [
+                {
+                    "$or": [
+                        {"name": {"$regex": search_term, "$options": "i"}},
+                        {"lastName": {"$regex": search_term, "$options": "i"}}
+                    ]
+                } if search_term else {},
+                {"role": role} if role else {},
+                {"permission": permission} if permission else {},
+                {"company": company} if company else {},
+                {'active': True}
+            ]
+        }
+        if filters:
+            active_members = list(map(lambda member: {
+                **member,
+                "_id": str(member["_id"]),
+            }, mongo.find(query)))
+        else:
+            active_members = list(map(lambda member: {
+                **member,
+                "_id": str(member["_id"]),
+            }, mongo.find({"active": True})))
+
         return active_members
     
     
