@@ -47,7 +47,18 @@ class MemberForEdit(BaseModel):
     permission: str | None = None
     avatar: str | None = None
 
+class SimulationParams(BaseModel):
+    frequencia_de_corretiva_anual: float
+  
+
 member_manager = MemberManager()
+
+@app.post("/simulation/")
+def test_simulator(params: SimulationParams):
+    print(params)
+    return
+
+
 
 @app.get("/")
 def home():
