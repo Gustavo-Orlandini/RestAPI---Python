@@ -1,9 +1,23 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-
-
+import psycopg2
 from src.member_meneger import MemberManager
+from datetime import date
+
+
+# Connect to the PostgreSQL database
+conn = psycopg2.connect(
+    database="SIOGA TESTE",
+    user="postgres",
+    password="siogabancoteste",
+    host="3.19.209.166",
+    port="5432"
+)
+
+# Create a cursor object to interact with the database
+cur = conn.cursor()
+
 
 app = FastAPI()
 
@@ -48,15 +62,16 @@ class MemberForEdit(BaseModel):
     avatar: str | None = None
 
 class SimulationParams(BaseModel):
-    frequencia_de_corretiva_anual: float
+    sigla_x: str
+    id_tipo: int
+    data: date
+    id_ativo: int
+    descricao: str
+    sigla_y: str
+    valor: float
+    id_usuario: str
   
-
 member_manager = MemberManager()
-
-@app.post("/simulation/")
-def test_simulator(params: SimulationParams):
-    print(params)
-    return
 
 
 
@@ -155,3 +170,26 @@ def list_all_permissions():
     }
     return permissions
 
+
+@app.post("/simulation/")
+def test_simulator(params: SimulationParams):
+    print(params)
+    insert_query = "INSERT INTO fato_eventos_simulacao (sigla_x, id_tipo, data, id_ativo, descricao, sigla_y, valor, id_usuario) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+    cur.execute(insert_query, (params.sigla_x, params.id_tipo, params.data, params.id_ativo, params.descricao, params.sigla_y,  params.valor,  params.id_usuario))    
+    conn.commit()
+    return 'ok'
+
+
+
+
+
+# SQL query for insertion
+
+# Execute the query with the data   
+# cur.execute(insert_query, (data_to_insert['name'], data_to_insert['age'], data_to_insert['city']))
+
+# Commit the changes
+
+# Close communication with the database
+# cur.close()
+# conn.close()
