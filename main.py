@@ -62,14 +62,10 @@ class MemberForEdit(BaseModel):
     avatar: str | None = None
 
 class SimulationParams(BaseModel):
-    sigla_x: str
-    id_tipo: int
-    data: date
-    id_ativo: int
-    descricao: str
-    sigla_y: str
+    indicador: str
     valor: float
     id_usuario: str
+    data_simulacao: date
   
 member_manager = MemberManager()
 
@@ -174,8 +170,8 @@ def list_all_permissions():
 @app.post("/simulation/")
 def test_simulator(params: SimulationParams):
     print(params)
-    insert_query = "INSERT INTO fato_eventos_simulacao (sigla_x, id_tipo, data, id_ativo, descricao, sigla_y, valor, id_usuario) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-    cur.execute(insert_query, (params.sigla_x, params.id_tipo, params.data, params.id_ativo, params.descricao, params.sigla_y,  params.valor,  params.id_usuario))    
+    insert_query = "INSERT INTO fato_analitico (indicador, valor, id_usuario, data_simulacao) VALUES (%s, %s, %s, %s)"
+    cur.execute(insert_query, (params.indicador, params.valor, params.id_usuario, params.data_simulacao))    
     conn.commit()
     return 'ok'
 
