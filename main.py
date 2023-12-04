@@ -11,7 +11,7 @@ conn = psycopg2.connect(
     database="SIOGA TESTE",
     user="postgres",
     password="siogabancoteste",
-    host="3.19.209.166",
+    host="52.15.136.123",
     port="5432"
 )
 
