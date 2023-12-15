@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 from src.member_meneger import MemberManager
 from datetime import date
+from datetime import datetime
 
 
 # Connect to the PostgreSQL database
@@ -11,7 +12,7 @@ conn = psycopg2.connect(
     database="SIOGA TESTE",
     user="postgres",
     password="siogabancoteste",
-    host="52.15.136.123",
+    host="18.222.58.174",
     port="5432"
 )
 
@@ -65,7 +66,7 @@ class SimulationParams(BaseModel):
     indicador: str
     valor: float
     id_usuario: str
-    data_simulacao: date
+    data_simulacao: datetime
   
 member_manager = MemberManager()
 
