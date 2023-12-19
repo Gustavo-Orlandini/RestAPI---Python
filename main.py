@@ -3,8 +3,8 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 from src.member_meneger import MemberManager
-from datetime import date
 from datetime import datetime
+from typing import Union
 
 
 # Connect to the PostgreSQL database
@@ -64,11 +64,30 @@ class MemberForEdit(BaseModel):
 
 class SimulationParams(BaseModel):
     indicador: str
-    valor: float
+    valor: Union[float, dict]
     id_usuario: str
     data_simulacao: datetime
   
 member_manager = MemberManager()
+
+
+
+@app.post("/simulation/")
+def test_simulator(params: SimulationParams):
+    print(params)
+
+    if isinstance(params.valor, dict):
+        for indicador, valor in params.valor.items():
+            insert_query = "INSERT INTO fato_analitico (indicador, valor, id_usuario, data_simulacao) VALUES (%s, %s, %s, %s)"
+            cur.execute(insert_query, (indicador, valor, params.id_usuario, params.data_simulacao))
+            conn.commit()
+    else:
+        print('deu pal')
+        pass
+
+    return 'ok'
+
+
 
 
 
@@ -168,13 +187,6 @@ def list_all_permissions():
     return permissions
 
 
-@app.post("/simulation/")
-def test_simulator(params: SimulationParams):
-    print(params)
-    insert_query = "INSERT INTO fato_analitico (indicador, valor, id_usuario, data_simulacao) VALUES (%s, %s, %s, %s)"
-    cur.execute(insert_query, (params.indicador, params.valor, params.id_usuario, params.data_simulacao))    
-    conn.commit()
-    return 'ok'
 
 
 
