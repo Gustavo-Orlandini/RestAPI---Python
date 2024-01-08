@@ -64,16 +64,28 @@ class MemberForEdit(BaseModel):
 
 class SimulationParams(BaseModel):
     indicador: str
-    valor: Union[float, dict]
+    valor:  dict
     id_usuario: str
     data_simulacao: datetime
+
+
+class SimulationParamsEventos(BaseModel):
+    id: int
+    sigla_x: str
+    id_tipo: int
+    data: datetime
+    id_ativo: int
+    descricao: str
+    sigla_y: str
+    valor: float
+    id_usuario: str
   
 member_manager = MemberManager()
 
 
 
-@app.post("/simulation/")
-def test_simulator(params: SimulationParams):
+@app.post("/simulation/analitico")
+def test_simulator_analitico(params: SimulationParams):
     print(params)
 
     if isinstance(params.valor, dict):
@@ -82,8 +94,21 @@ def test_simulator(params: SimulationParams):
             cur.execute(insert_query, (indicador, valor, params.id_usuario, params.data_simulacao))
             conn.commit()
     else:
-        print('deu pal')
+        print('Um erro aconteceu')
         pass
+
+    return 'ok'
+
+
+@app.post("/simulation/eventos")
+def test_simulator_eventos(params: SimulationParamsEventos):
+    print(params)
+
+
+
+    insert_query = "INSERT INTO fato_eventos_simulacao ( sigla_x, id_tipo, data, id_ativo, descricao, sigla_y, valor, id_usuario) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    cur.execute(insert_query, ( params.sigla_x, params.id_tipo, params.data, params.id_ativo, params.descricao, params.sigla_y, params.valor, params.id_usuario))
+    conn.commit()
 
     return 'ok'
 
