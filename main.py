@@ -5,6 +5,8 @@ import psycopg2
 from src.member_meneger import MemberManager
 from datetime import datetime
 from typing import Union
+from fastapi import File, UploadFile
+import csv
 
 
 # Connect to the PostgreSQL database
@@ -70,7 +72,6 @@ class SimulationParams(BaseModel):
 
 
 class SimulationParamsEventos(BaseModel):
-    id: int
     sigla_x: str
     id_tipo: int
     data: datetime
@@ -100,17 +101,27 @@ def test_simulator_analitico(params: SimulationParams):
     return 'ok'
 
 
-@app.post("/simulation/eventos")
-def test_simulator_eventos(params: SimulationParamsEventos):
-    print(params)
+@app.post("/simulation/events")
+async def test_simulator_events(
+    # params: SimulationParamsEventos,
+    csv_file: UploadFile
+):
+    # print(params)
+    print(csv_file.filename)
 
+    csv_content = await csv_file.read()
+    csv_rows = csv_content.decode().splitlines()
+    csv_reader = csv.reader(csv_rows)
+    
+    next(csv_reader)
 
+    for row in csv_reader:
+        parsed_data = datetime.strptime(row[2], "%d/%m/%Y").strftime("%Y-%m-%d")
+        insert_query = "INSERT INTO fato_eventos_simulacao (sigla_x, id_tipo, data, id_ativo, descricao, sigla_y, valor, id_usuario) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        cur.execute(insert_query, (row[0], row[1], parsed_data, row[3], row[4], row[5], row[6], "Gustavo_teste"))
+        conn.commit()
 
-    insert_query = "INSERT INTO fato_eventos_simulacao ( sigla_x, id_tipo, data, id_ativo, descricao, sigla_y, valor, id_usuario) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    cur.execute(insert_query, ( params.sigla_x, params.id_tipo, params.data, params.id_ativo, params.descricao, params.sigla_y, params.valor, params.id_usuario))
-    conn.commit()
-
-    return 'ok'
+    return 'Dados inseridos com sucesso.'
 
 
 
