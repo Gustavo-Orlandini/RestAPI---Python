@@ -85,7 +85,7 @@ member_manager = MemberManager()
 
 
 
-@app.post("/simulation/analitico")
+@app.post("/simulation")
 def test_simulator_analitico(params: SimulationParams):
     print(params)
 
