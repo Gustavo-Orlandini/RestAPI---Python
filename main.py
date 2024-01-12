@@ -103,10 +103,8 @@ def test_simulator_analitico(params: SimulationParams):
 
 @app.post("/simulation/events")
 async def test_simulator_events(
-    # params: SimulationParamsEventos,
     csv_file: UploadFile
 ):
-    # print(params)
     print(csv_file.filename)
 
     csv_content = await csv_file.read()
@@ -122,8 +120,6 @@ async def test_simulator_events(
         conn.commit()
 
     return 'Dados inseridos com sucesso.'
-
-
 
 
 
