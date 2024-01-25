@@ -7,6 +7,9 @@ from datetime import datetime
 from typing import Union
 from fastapi import File, UploadFile
 import csv
+import pandas as pd
+import io
+
 
 
 # Connect to the PostgreSQL database
@@ -108,18 +111,27 @@ async def test_simulator_events(
     print(csv_file.filename)
 
     csv_content = await csv_file.read()
-    csv_rows = csv_content.decode().splitlines()
-    csv_reader = csv.reader(csv_rows)
     
-    next(csv_reader)
+    csv_file_wrapper = io.TextIOWrapper(io.BytesIO(csv_content), encoding="utf-8")
 
-    for row in csv_reader:
-        parsed_data = datetime.strptime(row[2], "%d/%m/%Y").strftime("%Y-%m-%d")
+    # Detecção automática do separador usando o csv.Sniffer
+    dialect = csv.Sniffer().sniff(csv_file_wrapper.read(1024))
+    csv_file_wrapper.seek(0)
+
+    delimitador = dialect.delimiter
+    df = pd.read_csv(csv_file_wrapper, delimiter=delimitador) #Def limitador
+    # df.to_csv(r"Caminho do documento", sep=",") #Salva com delimitador ,
+
+    for row in df.iterrows():
+        continue
+        parsed_data = datetime.strptime(row['DATA'], "%d/%m/%y").strftime("%Y-%m-%d")
         insert_query = "INSERT INTO fato_eventos_simulacao (sigla_x, id_tipo, data, id_ativo, descricao, sigla_y, valor, id_usuario) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-        cur.execute(insert_query, (row[0], row[1], parsed_data, row[3], row[4], row[5], row[6], "Gustavo_teste"))
+        cur.execute(insert_query, (row['SIGLA X'], row['TIPO DE ID'], parsed_data, row['ID DO ATIVO'], row['DESCRIÇÃO'], row['SIGLA Y'], row['VALOR'], "Gustavo_teste"))
         conn.commit()
 
     return 'Dados inseridos com sucesso.'
+
+
 
 
 
