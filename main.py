@@ -119,14 +119,16 @@ async def test_simulator_events(
     csv_file_wrapper.seek(0)
 
     delimitador = dialect.delimiter
-    df = pd.read_csv(csv_file_wrapper, delimiter=delimitador) #Def limitador
-    # df.to_csv(r"Caminho do documento", sep=",") #Salva com delimitador ,
+    df = pd.read_csv(csv_file_wrapper, delimiter=delimitador) # Definir delimitador
 
-    for row in df.iterrows():
-        continue
-        parsed_data = datetime.strptime(row['DATA'], "%d/%m/%y").strftime("%Y-%m-%d")
+    for _, row in df.iterrows():
+        if len(row['DATA']) == 8:
+            parsed_data = datetime.strptime(row['DATA'], "%d/%m/%y").strftime('%Y-%m-%d')
+        else:
+            parsed_data = datetime.strptime(row['DATA'], "%d/%m/%Y").strftime('%Y-%m-%d')
+
         insert_query = "INSERT INTO fato_eventos_simulacao (sigla_x, id_tipo, data, id_ativo, descricao, sigla_y, valor, id_usuario) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-        cur.execute(insert_query, (row['SIGLA X'], row['TIPO DE ID'], parsed_data, row['ID DO ATIVO'], row['DESCRIÇÃO'], row['SIGLA Y'], row['VALOR'], "Gustavo_teste"))
+        cur.execute(insert_query, (row['SIGLA X'], row['TIPO DE ID'], parsed_data, row['ID DO ATIVO'], row['DESCRICAO'], row['SIGLA Y'], row['VALOR'], "Gustavo_teste"))
         conn.commit()
 
     return 'Dados inseridos com sucesso.'
