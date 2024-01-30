@@ -11,7 +11,6 @@ import pandas as pd
 import io
 
 
-
 # Connect to the PostgreSQL database
 conn = psycopg2.connect(
     database="SIOGA TESTE",
@@ -132,8 +131,6 @@ async def test_simulator_events(
         conn.commit()
 
     return 'Dados inseridos com sucesso.'
-
-
 
 
 
