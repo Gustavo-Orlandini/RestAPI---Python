@@ -5,8 +5,7 @@ import psycopg2
 from src.member_meneger import MemberManager
 from datetime import datetime
 from typing import Union
-from fastapi import File, UploadFile
-import csv
+from fastapi import File, UploadFile, HTTPException
 import pandas as pd
 import io
 
@@ -105,32 +104,47 @@ def test_simulator_analitico(params: SimulationParams):
 
 @app.post("/simulation/events")
 async def test_simulator_events(
-    csv_file: UploadFile
+    simulation_file: UploadFile
 ):
-    print(csv_file.filename)
+    try:
+        print(simulation_file.filename)
 
-    csv_content = await csv_file.read()
-    
-    csv_file_wrapper = io.TextIOWrapper(io.BytesIO(csv_content), encoding="utf-8")
+        excel_content = await simulation_file.read()
 
-    # Detecção automática do separador usando o csv.Sniffer
-    dialect = csv.Sniffer().sniff(csv_file_wrapper.read(1024))
-    csv_file_wrapper.seek(0)
+        # Usar io.BytesIO para criar um buffer de leitura
+        excel_file_wrapper = io.BytesIO(excel_content)
 
-    delimitador = dialect.delimiter
-    df = pd.read_csv(csv_file_wrapper, delimiter=delimitador) # Definir delimitador
+        # Utilizar o Pandas para ler o Excel
+        df = pd.read_excel(excel_file_wrapper)
 
-    for _, row in df.iterrows():
-        if len(row['DATA']) == 8:
-            parsed_data = datetime.strptime(row['DATA'], "%d/%m/%y").strftime('%Y-%m-%d')
-        else:
-            parsed_data = datetime.strptime(row['DATA'], "%d/%m/%Y").strftime('%Y-%m-%d')
+        # Validar se a planilha não está vazia
+        if df.empty:
+            raise HTTPException(status_code=400, detail="A planilha está vazia. Por favor, preencha os dados e tente novamente.")
 
-        insert_query = "INSERT INTO fato_eventos_simulacao (sigla_x, id_tipo, data, id_ativo, descricao, sigla_y, valor, id_usuario) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-        cur.execute(insert_query, (row['SIGLA X'], row['TIPO DE ID'], parsed_data, row['ID DO ATIVO'], row['DESCRICAO'], row['SIGLA Y'], row['VALOR'], "Gustavo_teste"))
-        conn.commit()
+        # Colunas esperadas
+        expected_columns = ['SIGLA X', 'TIPO DE ID', 'DATA', 'ID DO ATIVO', 'DESCRICAO', 'SIGLA Y', 'VALOR']
 
-    return 'Dados inseridos com sucesso.'
+        # Verificar se as colunas esperadas estão presentes na planilha
+        if not set(expected_columns).issubset(df.columns):
+            raise HTTPException(status_code=400, detail=f"A planilha deve conter as seguintes colunas: {', '.join(expected_columns)}.")
+
+        for _, row in df.iterrows():
+            # Utilizar o Pandas para converter a data
+            parsed_data = pd.to_datetime(row['DATA'], dayfirst=True).strftime('%Y-%m-%d')
+
+            insert_query = "INSERT INTO fato_eventos_simulacao (sigla_x, id_tipo, data, id_ativo, descricao, sigla_y, valor, id_usuario) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+            cur.execute(insert_query, (row['SIGLA X'], row['TIPO DE ID'], parsed_data, row['ID DO ATIVO'], row['DESCRICAO'], row['SIGLA Y'], row['VALOR'], "Gustavo_teste"))
+            conn.commit()
+
+        return 'Dados inseridos com sucesso.'
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro no processamento do arquivo: {str(e)}")
+    finally:
+        if not cur.closed:
+            cur.close()
+        if not conn.closed:
+            conn.close()
 
 
 
