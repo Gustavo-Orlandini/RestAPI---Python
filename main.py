@@ -1,14 +1,13 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
+from src.simulation_events_manager import SimulationEventsManager
 from src.member_meneger import MemberManager
 from datetime import datetime
 from typing import Union
-from fastapi import File, UploadFile, HTTPException
 import pandas as pd
 import io
-
 
 # Connect to the PostgreSQL database
 conn = psycopg2.connect(
@@ -33,7 +32,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class Member(BaseModel):
+class MemberWithAvatar(BaseModel):
     name: str
     lastName: str
     cpf: str
@@ -44,7 +43,7 @@ class Member(BaseModel):
     avatar: str
     active: bool = True
 
-class Teste(BaseModel):
+class Member(BaseModel):
     name: str
     lastName: str
     cpf: str
@@ -87,7 +86,7 @@ member_manager = MemberManager()
 
 
 @app.post("/simulation")
-def test_simulator_analitico(params: SimulationParams):
+def simulator_analitico(params: SimulationParams):
     print(params)
 
     if isinstance(params.valor, dict):
@@ -103,48 +102,12 @@ def test_simulator_analitico(params: SimulationParams):
 
 
 @app.post("/simulation/events")
-async def test_simulator_events(
-    simulation_file: UploadFile
-):
-    try:
-        print(simulation_file.filename)
-
-        excel_content = await simulation_file.read()
-
-        # Usar io.BytesIO para criar um buffer de leitura
+async def simulator_events(simulation_file: UploadFile):
+        excel_content = simulation_file.file.read()
         excel_file_wrapper = io.BytesIO(excel_content)
-
-        # Utilizar o Pandas para ler o Excel
         df = pd.read_excel(excel_file_wrapper)
-
-        # Validar se a planilha não está vazia
-        if df.empty:
-            raise HTTPException(status_code=400, detail="A planilha está vazia. Por favor, preencha os dados e tente novamente.")
-
-        # Colunas esperadas
-        expected_columns = ['SIGLA X', 'TIPO DE ID', 'DATA', 'ID DO ATIVO', 'DESCRICAO', 'SIGLA Y', 'VALOR']
-
-        # Verificar se as colunas esperadas estão presentes na planilha
-        if not set(expected_columns).issubset(df.columns):
-            raise HTTPException(status_code=400, detail=f"A planilha deve conter as seguintes colunas: {', '.join(expected_columns)}.")
-
-        for _, row in df.iterrows():
-            # Utilizar o Pandas para converter a data
-            parsed_data = pd.to_datetime(row['DATA'], dayfirst=True).strftime('%Y-%m-%d')
-
-            insert_query = "INSERT INTO fato_eventos_simulacao (sigla_x, id_tipo, data, id_ativo, descricao, sigla_y, valor, id_usuario) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-            cur.execute(insert_query, (row['SIGLA X'], row['TIPO DE ID'], parsed_data, row['ID DO ATIVO'], row['DESCRICAO'], row['SIGLA Y'], row['VALOR'], "Gustavo_teste"))
-            conn.commit()
-
-        return 'Dados inseridos com sucesso.'
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro no processamento do arquivo: {str(e)}")
-    finally:
-        if not cur.closed:
-            cur.close()
-        if not conn.closed:
-            conn.close()
+        simulation_events_manager = SimulationEventsManager(df_default = df).process_simulation_file(cur=cur, conn=conn)
+        return simulation_events_manager
 
 
 
@@ -166,7 +129,7 @@ def get_specific_member_by_firebase_id(id_firebase: str):
 
 
 @app.post("/members/")
-def create_member(member: Teste):
+def create_member(member: Member):
     print(member)
     new_member = member_manager.add_member(member.model_dump())
     return new_member

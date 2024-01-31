@@ -6,8 +6,8 @@ load_dotenv(find_dotenv())
 from bson import ObjectId 
 
 
-MONGO_URI_CONNECTION=os.getenv("MONGO_URI_CONNECTION")
-mongo = MongoClient(MONGO_URI_CONNECTION)["dev"]["members"]
+MONGO_URI=os.getenv("MONGO_URI")
+mongo = MongoClient(MONGO_URI)["dev"]["members"]
 
 
 class MemberManager:
