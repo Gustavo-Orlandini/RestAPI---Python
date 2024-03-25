@@ -9,6 +9,7 @@ from typing import Union
 import pandas as pd
 import io
 
+
 # Connect to the PostgreSQL database
 conn = psycopg2.connect(
     database="SIOGA TESTE",

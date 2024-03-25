@@ -2,12 +2,13 @@ from fastapi import HTTPException
 from pymongo import MongoClient
 from dotenv import load_dotenv, find_dotenv
 import os
-load_dotenv(find_dotenv())
+load_dotenv()
 from bson import ObjectId 
 
 
+
 MONGO_URI=os.getenv("MONGO_URI")
-mongo = MongoClient(MONGO_URI)["dev"]["members"]
+mongo = MongoClient("mongodb+srv://admin:QByYU3GvdWhct5AB@cluster0.ueh0v99.mongodb.net/?retryWrites=true&w=majority")["dev"]["members"]
 
 
 class MemberManager:
