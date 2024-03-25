@@ -85,12 +85,8 @@ class SimulationParamsEventos(BaseModel):
 member_manager = MemberManager()
 
 
-class AnalyticsParams(BaseModel):
-    pass
-
-
 @app.post("/analytics")
-def gabriel_function(params: AnalyticsParams):
+def gabriel_function(data):
     return 'ok'
 
 
