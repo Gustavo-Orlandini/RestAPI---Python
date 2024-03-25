@@ -2,6 +2,8 @@ from fastapi import HTTPException
 from pymongo import MongoClient
 from dotenv import load_dotenv, find_dotenv
 import os
+
+from main import AnalyticsParams
 load_dotenv()
 from bson import ObjectId 
 
@@ -14,6 +16,10 @@ mongo = MongoClient("mongodb+srv://admin:QByYU3GvdWhct5AB@cluster0.ueh0v99.mongo
 class MemberManager:
     def __init__(self):
         pass
+
+
+    def gabriel_function(params: AnalyticsParams) # type: ignore
+        return 'ok'     # type: ignore
 
 
     def member_count(self):
