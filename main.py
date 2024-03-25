@@ -1,14 +1,15 @@
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import FastAPI, HTTPException, UploadFile, Field
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 from src.simulation_events_manager import SimulationEventsManager
 from src.member_meneger import MemberManager
 from datetime import datetime
-from typing import Union
+from typing import List, Union
 import pandas as pd
 import io
-
+import json
+from sioga_dados_main import reliability_functions_sioga
 
 # Connect to the PostgreSQL database
 conn = psycopg2.connect(
@@ -81,14 +82,28 @@ class SimulationParamsEventos(BaseModel):
     sigla_y: str
     valor: float
     id_usuario: str
+
+
+class AnalysisWeibullEvent(BaseModel):
+    id: int
+    data_inicio_operacao: str = Field(alias="data inicio operacao")
+    data_falha: str = Field(alias="data falha")
+    situacao: str
+class AnalysisWeibullEventList(BaseModel):
+    eventos: List[AnalysisWeibullEvent]
   
 member_manager = MemberManager()
 
 
 @app.post("/analytics")
-def gabriel_function(data):
-    return 'ok'
+def analysis_weibull(params: AnalysisWeibullEventList):
 
+    objeto_json = json.loads(params)
+    df = pd.DataFrame(objeto_json)
+
+    result = reliability_functions_sioga.calculate_weibull_params(df)
+
+    return result
 
 
 @app.post("/simulation")
