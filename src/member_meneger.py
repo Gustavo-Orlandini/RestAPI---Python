@@ -2,8 +2,8 @@ from fastapi import HTTPException
 from pymongo import MongoClient
 from dotenv import load_dotenv, find_dotenv
 import os
+from sioga_dados_main import reliability_functions_sioga
 
-from main import AnalyticsParams
 load_dotenv()
 from bson import ObjectId 
 
@@ -18,8 +18,9 @@ class MemberManager:
         pass
 
 
-    def gabriel_function(params: AnalyticsParams) # type: ignore
-        return 'ok'     # type: ignore
+    def gabriel_function(self, data):
+        weibul_reliability = reliability_functions_sioga.calculate_weibull_params(data)
+        return weibul_reliability  
 
 
     def member_count(self):

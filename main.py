@@ -1,14 +1,16 @@
-from fastapi import FastAPI, HTTPException, UploadFile
-from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
-import psycopg2
 from src.simulation_events_manager import SimulationEventsManager
+from sioga_dados_main import reliability_functions_sioga
+from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from src.member_meneger import MemberManager
+from pydantic import BaseModel, Field
+from collections.abc import Iterable
 from datetime import datetime
-from typing import Union
+from typing import List
 import pandas as pd
+import numpy as np
+import psycopg2
 import io
-
 
 # Connect to the PostgreSQL database
 conn = psycopg2.connect(
@@ -81,19 +83,33 @@ class SimulationParamsEventos(BaseModel):
     sigla_y: str
     valor: float
     id_usuario: str
-  
+
+
+class AnalysisWeibullEvent(BaseModel):
+    id: int
+    data_inicio_operacao: str = Field(alias="data inicio operacao")
+    data_falha: str = Field(alias="data falha")
+    situacao: str
+
 member_manager = MemberManager()
 
-
-class AnalyticsParams(BaseModel):
-    pass
-
-
 @app.post("/analytics")
-def gabriel_function(params: AnalyticsParams):
-    return 'ok'
+def analysis_weibull(params: List[AnalysisWeibullEvent]):
 
+    data = [{"id": event.id, 
+             "data inicio operacao": event.data_inicio_operacao, 
+             "data falha": event.data_falha, 
+             "situacao": event.situacao} for event in params]
 
+    df = pd.DataFrame(data)
+
+    result = reliability_functions_sioga.calculate_weibull_params(df)
+
+    result = {k: [None if np.isinf(x) else x for x in v] if isinstance(v, Iterable) else v for k, v in result.items()}
+
+    result = {k: [None if x == np.inf else x for x in v] if isinstance(v, Iterable) else v for k, v in result.items()}
+
+    return result
 
 @app.post("/simulation")
 def simulator_analitico(params: SimulationParams):
