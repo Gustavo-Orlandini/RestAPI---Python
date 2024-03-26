@@ -1,15 +1,16 @@
-from fastapi import FastAPI, HTTPException, UploadFile, Field
-from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
-import psycopg2
 from src.simulation_events_manager import SimulationEventsManager
-from src.member_meneger import MemberManager
-from datetime import datetime
-from typing import List, Union
-import pandas as pd
-import io
-import json
 from sioga_dados_main import reliability_functions_sioga
+from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from src.member_meneger import MemberManager
+from pydantic import BaseModel, Field
+from collections.abc import Iterable
+from datetime import datetime
+from typing import List
+import pandas as pd
+import numpy as np
+import psycopg2
+import io
 
 # Connect to the PostgreSQL database
 conn = psycopg2.connect(
@@ -89,22 +90,26 @@ class AnalysisWeibullEvent(BaseModel):
     data_inicio_operacao: str = Field(alias="data inicio operacao")
     data_falha: str = Field(alias="data falha")
     situacao: str
-class AnalysisWeibullEventList(BaseModel):
-    eventos: List[AnalysisWeibullEvent]
-  
+
 member_manager = MemberManager()
 
-
 @app.post("/analytics")
-def analysis_weibull(params: AnalysisWeibullEventList):
+def analysis_weibull(params: List[AnalysisWeibullEvent]):
 
-    objeto_json = json.loads(params)
-    df = pd.DataFrame(objeto_json)
+    data = [{"id": event.id, 
+             "data inicio operacao": event.data_inicio_operacao, 
+             "data falha": event.data_falha, 
+             "situacao": event.situacao} for event in params]
+
+    df = pd.DataFrame(data)
 
     result = reliability_functions_sioga.calculate_weibull_params(df)
 
-    return result
+    result = {k: [None if np.isinf(x) else x for x in v] if isinstance(v, Iterable) else v for k, v in result.items()}
 
+    result = {k: [None if x == np.inf else x for x in v] if isinstance(v, Iterable) else v for k, v in result.items()}
+
+    return result
 
 @app.post("/simulation")
 def simulator_analitico(params: SimulationParams):

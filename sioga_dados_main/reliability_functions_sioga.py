@@ -68,5 +68,5 @@ def calculate_weibull_params(data):
     beta_upper = fit.beta_upper
 
     json_answer = calcular_distribuicao_weibull(alpha, beta, alpha_lower, beta_lower, alpha_upper, beta_upper)
-
+    print(json_answer)
     return json_answer

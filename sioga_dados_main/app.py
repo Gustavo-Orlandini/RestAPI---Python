@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 @app.route('/api', methods=['POST'])
 def api():
-    data = request.get_json()  # Obtém o JSON enviado na requisição
+    data = request.get_json()  
     data = pd.DataFrame.from_dict(data)
     weibul_reliability = calculate_weibull_params(data)
     return weibul_reliability
